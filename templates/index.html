@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop App - Scan & Verify</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="p-3 text-white">
+            <h4>Workshop App</h4>
+            <small>Admin Panel</small>
+        </div>
+    </div>
+
+    <div class="main-content" style="margin-left: 250px; padding: 20px;">
+        
+        <div class="container-fluid">
+            <h2 class="fw-bold mb-4">Scan & Verify BPD</h2>
+
+            <div class="card p-4 mb-5 shadow-sm">
+                <h5 class="fw-bold mb-3"><i class="bi bi-cloud-upload-fill"></i> Upload Dokumen</h5>
+                
+                <form method="post" enctype="multipart/form-data" onsubmit="tampilkanLoading()">
+                    <div class="mb-3">
+                        <input type="file" name="pdf_files" class="form-control" multiple required accept=".pdf">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100" id="btnProses">
+                        Proses Ekstraksi AI
+                    </button>
+                    
+                    <div id="loadingState" class="text-center mt-3" style="display:none;">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-primary">Sedang memproses... Mohon tunggu...</p>
+                    </div>
+                </form>
+            </div>
+
+            <script>
+            function tampilkanLoading() {
+                document.getElementById('btnProses').style.display = 'none';
+                document.getElementById('loadingState').style.display = 'block';
+            }
+            </script>
+
+            {% if mode_hasil %}
+            <h5 class="fw-bold mb-3">Hasil Batch Upload ({{ laporan_upload|length }} File)</h5>
+            
+            <div class="accordion" id="accordionBPD">
+                
+                {% for laporan in laporan_upload %}
+                <div class="accordion-item mb-3 border rounded shadow-sm overflow-hidden">
+                    
+                    <h2 class="accordion-header" id="heading{{ loop.index }}">
+                        <button class="accordion-button {% if not loop.first %}collapsed{% endif %} 
+                            {% if laporan.status == 'bahaya' %}bg-danger-subtle text-danger{% endif %}" 
+                            type="button" data-bs-toggle="collapse" 
+                            data-bs-target="#collapse{{ loop.index }}">
+                            
+                            <div class="d-flex align-items-center w-100 pe-3">
+                                {% if laporan.status == 'bahaya' %}
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                {% else %}
+                                    <i class="bi bi-check-circle-fill me-2 text-success"></i>
+                                {% endif %}
+                                
+                                <span class="fw-bold me-auto">{{ laporan.nama_file }}</span>
+                                
+                                {% if laporan.status == 'bahaya' %}
+                                    <span class="badge bg-danger">GAGAL / KOSONG</span>
+                                {% else %}
+                                    <span class="badge bg-success">{{ laporan.items_count }} Item</span>
+                                {% endif %}
+                            </div>
+                        </button>
+                    </h2>
+
+                    <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" 
+                         data-bs-parent="#accordionBPD">
+                        <div class="accordion-body bg-light p-4">
+                            
+                            <div class="card bg-white border p-4 rounded">
+                                <div class="d-flex justify-content-between mb-3">
+                                    <h6 class="fw-bold text-primary">Verified Data</h6>
+                                    <a href="{{ laporan.file_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        View PDF
+                                    </a>
+                                </div>
+
+                                <div class="row g-2 mb-3">
+                                    <div class="col-md-4">
+                                        <small class="text-muted fw-bold">NAMA FILE</small>
+                                        <input type="text" class="form-control form-control-sm" value="{{ laporan.nama_file }}" readonly>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <small class="text-muted fw-bold">TANGGAL</small>
+                                        <input type="text" class="form-control form-control-sm" value="{{ laporan.tanggal_upload }}" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-sm">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Nama Ducting</th>
+                                                <th>Dimensi</th>
+                                                <th>Qty</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% if laporan.items %}
+                                                {% for item in laporan.items %}
+                                                <tr>
+                                                    <td>{{ loop.index }}</td>
+                                                    <td>
+                                                        <input type="text" class="form-control form-control-sm border-0" 
+                                                               value="{{ item.nama_item }}">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control form-control-sm border-0 font-monospace" 
+                                                               value="{{ item.dimensi_raw }}">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control form-control-sm text-center fw-bold 
+                                                               {% if item.qty == 0 %}text-danger{% endif %}" 
+                                                               value="{% if item.qty == 0 %}?{% else %}{{ item.qty }}{% endif %}">
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% else %}
+                                                <tr><td colspan="4" class="text-center text-danger py-3">Data Kosong</td></tr>
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="mt-3 text-end">
+                                    <button class="btn btn-primary btn-sm"><i class="bi bi-save"></i> Save Changes</button>
+                                </div>
+
+                            </div>
+                            </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
