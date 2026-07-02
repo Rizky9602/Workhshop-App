@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop App - Tambah Material Support</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .card-custom {
+            margin-top: 15px;
+        }
+        .metric-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-logo"><i class="bi bi-box-seam"></i></div>
+            <div class="d-flex flex-column">
+                <span class="fw-bold text-dark">Workshop App</span>
+                <span class="text-muted" style="font-size: 11px;">Admin Panel</span>
+            </div>
+            <button class="btn btn-sm text-secondary d-lg-none ms-auto" id="closeSidebar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <nav class="nav flex-column mt-2">
+            <a class="nav-link" href="{{ url_for('index') }}">
+                <i class="bi bi-grid"></i> Dashboard
+            </a>
+            <a class="nav-link" data-bs-toggle="collapse" href="#bpdSubmenu" role="button" aria-expanded="false"
+                aria-controls="bpdSubmenu">
+                <i class="bi bi-file-earmark-text"></i> BPD <i class="bi bi-chevron-down ms-auto"
+                    style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse" id="bpdSubmenu">
+                <ul class="nav flex-column ms-4">
+                    <li>
+                        <a class="nav-link py-1" href="{{ url_for('bpd_management') }}">BPD management</a>
+                    </li>
+                    <li>
+                        <a class="nav-link py-1" href="{{ url_for('upload_page') }}">Upload BPD</a>
+                    </li>
+                </ul>
+            </div>
+
+            <a class="nav-link active fw-semibold text-primary" href="{{ url_for('material_support') }}">
+                <i class="bi bi-box"></i> Material Support
+            </a>
+        </nav>
+
+        <div class="sidebar-footer d-flex align-items-center justify-content-between w-100">
+            <div class="d-flex align-items-center gap-2">
+                <img src="https://ui-avatars.com/api/?name=Admin+User&background=random" alt="Admin"
+                    class="rounded-circle" width="40" height="40">
+                <div class="d-flex flex-column">
+                    <span class="fw-bold text-dark" style="font-size: 0.9rem;">Admin User</span>
+                    <span class="text-muted" style="font-size: 0.75rem;">Super Admin</span>
+                </div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="text-danger fs-5" title="Logout">
+                <i class="bi bi-box-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+
+        <nav class="top-navbar d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-light border-0 d-lg-none" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+
+                <div class="text-primary fw-bold d-flex align-items-center gap-2 fs-5">
+                    <i class="bi bi-box"></i> <span class="d-none d-sm-inline">Material Support</span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid px-3 px-md-4 pt-2 pt-md-3 pb-3 pb-md-4">
+
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb text-muted small mb-3">
+                    <li class="breadcrumb-item"><a href="{{ url_for('material_support') }}" class="text-decoration-none text-muted">Material Support</a></li>
+                    <li class="breadcrumb-item active fw-semibold text-dark">Tambah Permintaan</li>
+                </ol>
+            </nav>
+
+            <h2 class="fw-bold mb-1 h4">Buat Permintaan Material Support</h2>
+            <p class="text-muted mb-4 small">Pilih proyek, tentukan dokumen BPD yang ingin dihitung, dan kalkulasi seluruh kebutuhan material support.</p>
+
+            <!-- Step 1: Select Project -->
+            <div class="card-custom mb-4">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-1-circle-fill me-2 text-primary"></i>Pilih Proyek & Dokumen BPD</h5>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <label class="form-label text-muted small fw-semibold">PILIH PROYEK</label>
+                        <select id="projectSelect" class="form-select form-select-custom">
+                            <option value="">-- Pilih Proyek --</option>
+                            {% for proj in projects %}
+                                <option value="{{ proj }}">{{ proj }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- BPD Checklist Container (Initially Hidden) -->
+                <div id="bpdSelectionSection" class="mt-4 d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label text-muted small fw-semibold">PILIH DOKUMEN BPD PADA PROYEK INI</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="checkAllBpds">
+                            <label class="form-check-label small fw-medium text-secondary" for="checkAllBpds">Pilih Semua</label>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="max-height: 300px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <table class="table table-custom table-hover mb-0">
+                            <thead class="sticky-top bg-white">
+                                <tr>
+                                    <th style="width: 50px;">Pilih</th>
+                                    <th>Nomor BPD</th>
+                                    <th>Lantai / Area</th>
+                                    <th>Unit / Area</th>
+                                    <th>Tanggal Upload</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bpdTableBody">
+                                <!-- Loaded dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="button" id="btnCalculate" class="btn btn-primary px-4 py-2 fw-medium">
+                            <i class="bi bi-calculator me-1"></i> Hitung Kebutuhan
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Calculation Results Preview (Initially Hidden) -->
+            <div id="resultSection" class="d-none">
+                <!-- Summary Metrics -->
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-4">
+                        <div class="metric-card d-flex align-items-center justify-content-between border-start border-primary border-4">
+                            <div>
+                                <span class="text-muted small fw-semibold d-block mb-1">TOTAL CORNER</span>
+                                <span id="totalCornerVal" class="metric-value text-primary">0</span>
+                                <span class="text-muted small ms-1">buah</span>
+                            </div>
+                            <i class="bi bi-grid-3x3-gap-fill fs-2 text-primary opacity-50"></i>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="metric-card d-flex align-items-center justify-content-between border-start border-secondary border-4">
+                            <div>
+                                <span class="text-muted small fw-semibold d-block mb-1">TOTAL MUR BAUT</span>
+                                <span id="totalMurBautVal" class="metric-value text-secondary">0</span>
+                                <span class="text-muted small ms-1">set</span>
+                            </div>
+                            <i class="bi bi-nut-fill fs-2 text-secondary opacity-50"></i>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="metric-card d-flex align-items-center justify-content-between border-start border-success border-4">
+                            <div>
+                                <span class="text-muted small fw-semibold d-block mb-1">TOTAL FOAM TAPE</span>
+                                <span id="totalFoamTapeVal" class="metric-value text-success">0</span>
+                                <span class="text-muted small ms-1">roll</span>
+                            </div>
+                            <i class="bi bi-tape-fill fs-2 text-success opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Breakdown Card -->
+                <div class="card-custom">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-2-circle-fill me-2 text-primary"></i>Rincian Komponen Terhitung (Joint TFD)</h5>
+                    <div class="table-responsive">
+                        <table class="table table-custom mb-0">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nomor BPD</th>
+                                    <th>Nama Ducting</th>
+                                    <th>Lantai / Area</th>
+                                    <th>Ukuran TFD (mm)</th>
+                                    <th>Qty</th>
+                                    <th>Corner</th>
+                                    <th>Mur Baut</th>
+                                    <th>Foam Tape</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultTableBody">
+                                <!-- Loaded dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <a href="{{ url_for('material_support') }}" class="btn btn-outline-secondary px-4 py-2 fw-medium">
+                            Batal
+                        </a>
+                        <button type="button" id="btnSaveSupport" class="btn btn-success px-5 py-2 fw-semibold">
+                            <i class="bi bi-check-circle-fill me-1"></i> Simpan Permintaan
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height: 50px;"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}?v=1.0.5"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const projectSelect = document.getElementById("projectSelect");
+            const bpdSelectionSection = document.getElementById("bpdSelectionSection");
+            const bpdTableBody = document.getElementById("bpdTableBody");
+            const checkAllBpds = document.getElementById("checkAllBpds");
+            const btnCalculate = document.getElementById("btnCalculate");
+            
+            const resultSection = document.getElementById("resultSection");
+            const resultTableBody = document.getElementById("resultTableBody");
+            const totalCornerVal = document.getElementById("totalCornerVal");
+            const totalMurBautVal = document.getElementById("totalMurBautVal");
+            const totalFoamTapeVal = document.getElementById("totalFoamTapeVal");
+            const btnSaveSupport = document.getElementById("btnSaveSupport");
+
+            // Project selection event
+            projectSelect.addEventListener("change", function() {
+                const project = this.value;
+                if (!project) {
+                    bpdSelectionSection.classList.add("d-none");
+                    resultSection.classList.add("d-none");
+                    return;
+                }
+
+                // Load BPDs for selected project
+                fetch(`/api/project-bpds/${encodeURIComponent(project)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            bpdTableBody.innerHTML = "";
+                            checkAllBpds.checked = false;
+                            
+                            if (data.bpds.length === 0) {
+                                bpdTableBody.innerHTML = `
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            Tidak ada dokumen BPD untuk proyek ini.
+                                        </td>
+                                    </tr>
+                                `;
+                                btnCalculate.disabled = true;
+                            } else {
+                                data.bpds.forEach(b => {
+                                    bpdTableBody.innerHTML += `
+                                        <tr>
+                                            <td>
+                                                <input class="form-check-input bpd-checkbox" type="checkbox" value="${b.id}">
+                                            </td>
+                                            <td class="fw-medium text-dark">${b.bpd_no}</td>
+                                            <td>${b.lantai}</td>
+                                            <td>${b.unit_area}</td>
+                                            <td>${b.upload_date}</td>
+                                        </tr>
+                                    `;
+                                });
+                                btnCalculate.disabled = false;
+                                
+                                // Re-bind checkboxes to checkAll Bpds
+                                bindCheckboxes();
+                            }
+                            bpdSelectionSection.classList.remove("d-none");
+                            resultSection.classList.add("d-none"); // Hide old results
+                        } else {
+                            alert("Gagal memuat BPD: " + data.error);
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("Terjadi kesalahan koneksi saat memuat BPD.");
+                    });
+            });
+
+            function bindCheckboxes() {
+                const checkBoxes = document.querySelectorAll(".bpd-checkbox");
+                checkBoxes.forEach(cb => {
+                    cb.addEventListener("change", function() {
+                        const allChecked = Array.from(checkBoxes).every(c => c.checked);
+                        checkAllBpds.checked = allChecked;
+                    });
+                });
+            }
+
+            // Check All BPDs handler
+            checkAllBpds.addEventListener("change", function() {
+                const checkBoxes = document.querySelectorAll(".bpd-checkbox");
+                checkBoxes.forEach(cb => {
+                    cb.checked = this.checked;
+                });
+            });
+
+            // Calculate button handler
+            btnCalculate.addEventListener("click", function() {
+                const selectedIds = Array.from(document.querySelectorAll(".bpd-checkbox:checked")).map(cb => parseInt(cb.value));
+                if (selectedIds.length === 0) {
+                    alert("Pilih setidaknya satu dokumen BPD untuk dihitung.");
+                    return;
+                }
+
+                // Call calculation endpoint
+                fetch("/api/calculate-support", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ bpd_ids: selectedIds })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Display metrics
+                        totalCornerVal.innerText = data.total_corner.toLocaleString();
+                        totalMurBautVal.innerText = data.total_murbaut.toLocaleString();
+                        totalFoamTapeVal.innerText = data.total_foam_tape.toLocaleString();
+
+                        // Display table rows
+                        resultTableBody.innerHTML = "";
+                        if (data.items.length === 0) {
+                            resultTableBody.innerHTML = `
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted py-4">
+                                        Tidak ada komponen ducting dengan tipe joint TFD pada BPD yang dipilih.
+                                    </td>
+                                </tr>
+                            `;
+                        } else {
+                            data.items.forEach((item, index) => {
+                                resultTableBody.innerHTML += `
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td class="fw-semibold text-dark">${item.bpd_no}</td>
+                                        <td>${item.nama_ducting}</td>
+                                        <td>${item.lantai} / ${item.unit_area}</td>
+                                        <td class="text-primary fw-medium">${item.formatted_tfd_size}</td>
+                                        <td>${item.qty}</td>
+                                        <td>${item.corner} buah</td>
+                                        <td>${item.murbaut} set</td>
+                                        <td class="text-success fw-medium">${item.foam_tape} roll</td>
+                                    </tr>
+                                `;
+                            });
+                        }
+                        resultSection.classList.remove("d-none");
+                        
+                        // Scroll to results smoothly
+                        resultSection.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        alert("Gagal melakukan kalkulasi: " + data.error);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Terjadi kesalahan saat menghitung material support.");
+                });
+            });
+
+            // Save support request handler
+            btnSaveSupport.addEventListener("click", function() {
+                const project = projectSelect.value;
+                const selectedIds = Array.from(document.querySelectorAll(".bpd-checkbox:checked")).map(cb => parseInt(cb.value));
+                
+                if (!project) {
+                    alert("Proyek harus dipilih.");
+                    return;
+                }
+                if (selectedIds.length === 0) {
+                    alert("Pilih setidaknya satu BPD.");
+                    return;
+                }
+
+                btnSaveSupport.disabled = true;
+                btnSaveSupport.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Menyimpan...`;
+
+                // Call save endpoint
+                fetch("/api/save-support", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        project_name: project,
+                        bpd_ids: selectedIds
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`Permintaan Material Support berhasil disimpan!\nNomor Permintaan: ${data.request_no}`);
+                        window.location.href = "{{ url_for('material_support') }}";
+                    } else {
+                        alert("Gagal menyimpan: " + data.error);
+                        btnSaveSupport.disabled = false;
+                        btnSaveSupport.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> Simpan Permintaan`;
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Terjadi kesalahan saat menyimpan data.");
+                    btnSaveSupport.disabled = false;
+                    btnSaveSupport.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> Simpan Permintaan`;
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

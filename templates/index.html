@@ -1,162 +1,152 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workshop App - Scan & Verify</title>
-    
+    <title>Workshop App - Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
 
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <div class="sidebar" id="sidebar">
-        <div class="p-3 text-white">
-            <h4>Workshop App</h4>
-            <small>Admin Panel</small>
+        <div class="sidebar-brand">
+            <div class="brand-logo"><i class="bi bi-box-seam"></i></div>
+            <div class="d-flex flex-column">
+                <span class="fw-bold text-dark">Workshop App</span>
+                <span class="text-muted" style="font-size: 11px;">Admin Panel</span>
+            </div>
+            <button class="btn btn-sm text-secondary d-lg-none ms-auto" id="closeSidebar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <nav class="nav flex-column mt-2">
+            <a class="nav-link" href="{{ url_for('index') }}">
+                <i class="bi bi-grid"></i> Dashboard
+            </a>
+            <a class="nav-link" data-bs-toggle="collapse" href="#bpdSubmenu" role="button" aria-expanded="false"
+                aria-controls="bpdSubmenu">
+                <i class="bi bi-file-earmark-text"></i> BPD <i class="bi bi-chevron-down ms-auto"
+                    style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse" id="bpdSubmenu">
+                <ul class="nav flex-column ms-4">
+                    <li>
+                        <a class="nav-link py-1" href="{{ url_for('bpd_management') }}">BPD management</a>
+                    </li>
+                    <li>
+                        <a class="nav-link py-1" href="{{ url_for('upload_page') }}">Upload BPD</a>
+                    </li>
+                </ul>
+            </div>
+
+            <a class="nav-link" href="{{ url_for('material_support') }}">
+                <i class="bi bi-box"></i> Material Support
+            </a>
+        </nav>
+
+        <div class="sidebar-footer d-flex align-items-center justify-content-between w-100">
+            <div class="d-flex align-items-center gap-2">
+                <img src="https://ui-avatars.com/api/?name=Admin+User&background=random" alt="Admin"
+                    class="rounded-circle" width="40" height="40">
+                <div class="d-flex flex-column">
+                    <span class="fw-bold text-dark" style="font-size: 0.9rem;">Admin User</span>
+                    <span class="text-muted" style="font-size: 0.75rem;">Super Admin</span>
+                </div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="text-danger fs-5" title="Logout">
+                <i class="bi bi-box-arrow-right"></i>
+            </a>
         </div>
     </div>
 
-    <div class="main-content" style="margin-left: 250px; padding: 20px;">
-        
-        <div class="container-fluid">
-            <h2 class="fw-bold mb-4">Scan & Verify BPD</h2>
+    <div class="main-content">
 
-            <div class="card p-4 mb-5 shadow-sm">
-                <h5 class="fw-bold mb-3"><i class="bi bi-cloud-upload-fill"></i> Upload Dokumen</h5>
-                
-                <form method="post" enctype="multipart/form-data" onsubmit="tampilkanLoading()">
-                    <div class="mb-3">
-                        <input type="file" name="pdf_files" class="form-control" multiple required accept=".pdf">
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary w-100" id="btnProses">
-                        Proses Ekstraksi AI
-                    </button>
-                    
-                    <div id="loadingState" class="text-center mt-3" style="display:none;">
-                        <div class="spinner-border text-primary" role="status"></div>
-                        <p class="mt-2 text-primary">Sedang memproses... Mohon tunggu...</p>
-                    </div>
-                </form>
+        <nav class="top-navbar d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-light border-0 d-lg-none" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+
+                <div class="text-primary fw-bold d-flex align-items-center gap-2 fs-5">
+                    <i class="bi bi-grid"></i> <span class="d-none d-sm-inline">Dashboard</span>
+                </div>
             </div>
+        </nav>
 
-            <script>
-            function tampilkanLoading() {
-                document.getElementById('btnProses').style.display = 'none';
-                document.getElementById('loadingState').style.display = 'block';
-            }
-            </script>
+        <div class="container-fluid px-3 px-md-4 pt-2 pt-md-3 pb-3 pb-md-4">
 
-            {% if mode_hasil %}
-            <h5 class="fw-bold mb-3">Hasil Batch Upload ({{ laporan_upload|length }} File)</h5>
-            
-            <div class="accordion" id="accordionBPD">
-                
-                {% for laporan in laporan_upload %}
-                <div class="accordion-item mb-3 border rounded shadow-sm overflow-hidden">
-                    
-                    <h2 class="accordion-header" id="heading{{ loop.index }}">
-                        <button class="accordion-button {% if not loop.first %}collapsed{% endif %} 
-                            {% if laporan.status == 'bahaya' %}bg-danger-subtle text-danger{% endif %}" 
-                            type="button" data-bs-toggle="collapse" 
-                            data-bs-target="#collapse{{ loop.index }}">
-                            
-                            <div class="d-flex align-items-center w-100 pe-3">
-                                {% if laporan.status == 'bahaya' %}
-                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                {% else %}
-                                    <i class="bi bi-check-circle-fill me-2 text-success"></i>
-                                {% endif %}
-                                
-                                <span class="fw-bold me-auto">{{ laporan.nama_file }}</span>
-                                
-                                {% if laporan.status == 'bahaya' %}
-                                    <span class="badge bg-danger">GAGAL / KOSONG</span>
-                                {% else %}
-                                    <span class="badge bg-success">{{ laporan.items_count }} Item</span>
-                                {% endif %}
-                            </div>
-                        </button>
-                    </h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb text-muted small mb-3">
+                    <li class="breadcrumb-item">Home</li>
+                    <li class="breadcrumb-item active fw-semibold text-dark">Dashboard</li>
+                </ol>
+            </nav>
 
-                    <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" 
-                         data-bs-parent="#accordionBPD">
-                        <div class="accordion-body bg-light p-4">
-                            
-                            <div class="card bg-white border p-4 rounded">
-                                <div class="d-flex justify-content-between mb-3">
-                                    <h6 class="fw-bold text-primary">Verified Data</h6>
-                                    <a href="{{ laporan.file_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                        View PDF
-                                    </a>
-                                </div>
+            <h2 class="fw-bold mb-1 h4">Selamat datang kembali, Admin</h2>
+            <p class="text-muted mb-4 small">Pantau statistik, tren verifikasi, dan kelola dokumen BPD Anda.</p>
 
-                                <div class="row g-2 mb-3">
-                                    <div class="col-md-4">
-                                        <small class="text-muted fw-bold">NAMA FILE</small>
-                                        <input type="text" class="form-control form-control-sm" value="{{ laporan.nama_file }}" readonly>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <small class="text-muted fw-bold">TANGGAL</small>
-                                        <input type="text" class="form-control form-control-sm" value="{{ laporan.tanggal_upload }}" readonly>
-                                    </div>
-                                </div>
-
-                                <div class="table-responsive">
-                                    <table class="table table-hover table-sm">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>No</th>
-                                                <th>Nama Ducting</th>
-                                                <th>Dimensi</th>
-                                                <th>Qty</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% if laporan.items %}
-                                                {% for item in laporan.items %}
-                                                <tr>
-                                                    <td>{{ loop.index }}</td>
-                                                    <td>
-                                                        <input type="text" class="form-control form-control-sm border-0" 
-                                                               value="{{ item.nama_item }}">
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" class="form-control form-control-sm border-0 font-monospace" 
-                                                               value="{{ item.dimensi_raw }}">
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" class="form-control form-control-sm text-center fw-bold 
-                                                               {% if item.qty == 0 %}text-danger{% endif %}" 
-                                                               value="{% if item.qty == 0 %}?{% else %}{{ item.qty }}{% endif %}">
-                                                    </td>
-                                                </tr>
-                                                {% endfor %}
-                                            {% else %}
-                                                <tr><td colspan="4" class="text-center text-danger py-3">Data Kosong</td></tr>
-                                            {% endif %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                
-                                <div class="mt-3 text-end">
-                                    <button class="btn btn-primary btn-sm"><i class="bi bi-save"></i> Save Changes</button>
-                                </div>
-
-                            </div>
-                            </div>
+            <!-- STAT CARDS (values are filled by script.js from /api/dashboard-stats, no dummy data) -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label mb-2">Total BPD Bulan Ini</div>
+                            <div class="stat-value" id="statTotalBpd">-</div>
+                        </div>
+                        <div class="stat-icon blue"><i class="bi bi-file-earmark-text"></i></div>
                     </div>
                 </div>
-                {% endfor %}
-                
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label mb-2">Active Proyek</div>
+                            <div class="stat-value" id="statActiveProjects">-</div>
+                        </div>
+                        <div class="stat-icon amber"><i class="bi bi-building-fill-check"></i></div>
+                    </div>
+                </div>
             </div>
-            {% endif %}
+
+            <!-- CHART + RECENT ACTIVITY -->
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-lg-7">
+                    <div class="card-custom mt-0 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-bar-chart-line-fill me-2"></i>Tren Verifikasi BPD</h6>
+                            <span class="text-muted small">6 bulan terakhir</span>
+                        </div>
+                        <div class="chart-wrap" style="position: relative; height: 300px;">
+                            <canvas id="productionTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-5">
+                    <div class="card-custom mt-0 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-pie-chart-fill me-2"></i>Pemakaian BJLS Bulan Ini</h6>
+                            <span class="text-muted small">Berdasarkan ketebalan</span>
+                        </div>
+                        <div class="chart-wrap" style="position: relative; height: 300px;">
+                            <canvas id="bjlsDoughnutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}?v=1.0.5"></script>
 </body>
+
 </html>

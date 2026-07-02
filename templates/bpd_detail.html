@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPD Detail - {{ document.bpd_no }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+            color: #333333;
+        }
+
+        .detail-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 15px;
+        }
+
+        .report-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            padding: 30px;
+        }
+
+        .report-header {
+            border-bottom: 2px solid #f1f3f5;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .meta-box {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .meta-value {
+            font-size: 0.95rem;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        @media print {
+            body {
+                background-color: #ffffff;
+            }
+
+            .detail-container {
+                margin: 0;
+                max-width: 100%;
+            }
+
+            .report-card {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="detail-container">
+        <!-- Back and Print Buttons -->
+        <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+            <button onclick="window.close()" class="btn btn-outline-secondary px-3 py-2 fw-medium">
+                <i class="bi bi-x-lg me-1"></i> Tutup Tab
+            </button>
+            <button onclick="window.print()" class="btn btn-primary px-4 py-2 fw-medium">
+                <i class="bi bi-printer-fill me-1"></i> Cetak / PDF
+            </button>
+        </div>
+
+        <!-- BPD Report -->
+        <div class="report-card">
+            <!-- Header Section -->
+            <div class="report-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                <div>
+                    <h3 class="fw-bold mb-1 text-primary"><i class="bi bi-file-earmark-text-fill me-2"></i>Bukti Permintaan Ducting</h3>
+                    <p class="text-muted mb-0 small">Detail item ducting yang terdaftar dalam BPD.</p>
+                </div>
+                <div class="text-sm-end">
+                    <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold">TERVERIFIKASI & DISIMPAN</span>
+                </div>
+            </div>
+
+            <!-- Metadata Box -->
+            <div class="meta-box">
+                <div class="row g-3">
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="meta-label">Project Name</div>
+                        <div class="meta-value">{{ document.project_name }}</div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="meta-label">BPD NO.</div>
+                        <div class="meta-value">{{ document.bpd_no }}</div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="meta-label">Gedung / Lantai</div>
+                        <div class="meta-value">{{ document.lantai }}</div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="meta-label">Unit / Area</div>
+                        <div class="meta-value">{{ document.unit_area }}</div>
+                    </div>
+                    <div class="col-12 col-md-4 col-lg-2">
+                        <div class="meta-label">Date</div>
+                        <div class="meta-value">{{ document.upload_date }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items Table Section -->
+            <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-list-task me-2"></i>Daftar Ukuran Ducting</h5>
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">No</th>
+                            <th>Nama Ducting</th>
+                            <th style="width: 150px;">Join Type</th>
+                            <th style="width: 250px;">Ukuran (mm)</th>
+                            <th style="width: 100px;">BJLS</th>
+                            <th style="width: 80px;">Qty</th>
+                            <th style="width: 150px; text-align: right;">Keb. Material (M')</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if items %}
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td class="fw-medium text-dark">{{ item.nama_ducting }}</td>
+                                <td>{{ item.join_type }}</td>
+                                <td>{{ item.formatted_size }}</td>
+                                <td>{{ item.bjls }}</td>
+                                <td>{{ item.qty }}</td>
+                                <td style="text-align: right; font-weight: 500;" class="text-primary">{{ "{:,.0f}".format(item.kebutuhan_material) if item.kebutuhan_material else "0" }} M'</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    Tidak ada data item pada dokumen ini.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- BJLS Summary Section -->
+            <div class="row mt-4 justify-content-end">
+                <div class="col-12 col-md-6 col-lg-5">
+                    <div class="card bg-light border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold mb-3 text-dark"><i class="bi bi-pie-chart-fill me-2 text-primary"></i>Ringkasan Kebutuhan Material per BJLS</h6>
+                            <table class="table table-sm table-borderless mb-0">
+                                <thead>
+                                    <tr class="border-bottom">
+                                        <th class="text-muted small fw-semibold">Tebal BJLS</th>
+                                        <th class="text-muted small fw-semibold text-end">Total Material (M')</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for summary in bjls_summary %}
+                                    <tr class="border-bottom-dashed">
+                                        <td class="fw-medium text-secondary">BJLS {{ summary.bjls }}</td>
+                                        <td class="fw-bold text-dark text-end">{{ "{:,.0f}".format(summary.total_material) if summary.total_material else "0" }} M'</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="text-center mt-4 text-muted small no-print">
+            Workshop App &copy; 2026. All rights reserved.
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

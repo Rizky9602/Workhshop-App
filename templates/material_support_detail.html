@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material Support Detail - {{ request_data.request_no }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+            color: #333333;
+        }
+
+        .detail-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 15px;
+        }
+
+        .report-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            padding: 30px;
+        }
+
+        .report-header {
+            border-bottom: 2px solid #f1f3f5;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .meta-box {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .meta-value {
+            font-size: 0.95rem;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .summary-card {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .summary-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            border-bottom: 1px solid #dbeafe;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .signature-section {
+            margin-top: 50px;
+            display: none;
+        }
+
+        @media print {
+            body {
+                background-color: #ffffff;
+            }
+
+            .detail-container {
+                margin: 0;
+                max-width: 100%;
+            }
+
+            .report-card {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .signature-section {
+                display: flex !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="detail-container">
+        <!-- Back and Print Buttons -->
+        <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+            <button onclick="window.close()" class="btn btn-outline-secondary px-3 py-2 fw-medium">
+                <i class="bi bi-x-lg me-1"></i> Tutup Tab
+            </button>
+            <button onclick="window.print()" class="btn btn-primary px-4 py-2 fw-medium">
+                <i class="bi bi-printer-fill me-1"></i> Cetak / PDF
+            </button>
+        </div>
+
+        <!-- Material Support Report -->
+        <div class="report-card">
+            <!-- Header Section -->
+            <div class="report-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                <div>
+                    <h3 class="fw-bold mb-1 text-primary"><i class="bi bi-box-fill me-2"></i>Bukti Perhitungan Material Support</h3>
+                    <p class="text-muted mb-0 small">Rincian perhitungan material support untuk sambungan ducting TFD.</p>
+                </div>
+                <div class="text-sm-end">
+                    <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-semibold">TERHITUNG & DISIMPAN</span>
+                </div>
+            </div>
+
+            <!-- Metadata Box -->
+            <div class="meta-box">
+                <div class="row g-3">
+                    <div class="col-6 col-md-3">
+                        <div class="meta-label">No. Permintaan</div>
+                        <div class="meta-value text-primary fw-bold">{{ request_data.request_no }}</div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="meta-label">Project Name</div>
+                        <div class="meta-value">{{ request_data.project_name }}</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="meta-label">Nomor BPD Terhitung</div>
+                        <div class="meta-value">{{ request_data.bpd_nos }}</div>
+                    </div>
+                    <div class="col-12 col-md-2">
+                        <div class="meta-label">Tanggal Dibuat</div>
+                        <div class="meta-value">{{ request_data.created_at.strftime('%d-%m-%Y') if request_data.created_at else '-' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items Table Section -->
+            <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-list-task me-2"></i>Rincian Ducting TFD</h5>
+            <div class="table-responsive mb-4">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">No</th>
+                            <th style="width: 120px;">BPD NO</th>
+                            <th>Nama Ducting</th>
+                            <th>Lantai / Area</th>
+                            <th style="width: 150px;">Ukuran TFD (mm)</th>
+                            <th style="width: 70px;">Qty</th>
+                            <th style="width: 100px; text-align: right;">Corner</th>
+                            <th style="width: 100px; text-align: right;">Mur Baut</th>
+                            <th style="width: 100px; text-align: right;">Foam Tape</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if items %}
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td class="fw-semibold text-dark">{{ item.bpd_no }}</td>
+                                <td class="fw-medium">{{ item.nama_ducting }}</td>
+                                <td>{{ item.lantai }} / {{ item.unit_area }}</td>
+                                <td class="text-primary fw-medium">{{ item.formatted_tfd_size }}</td>
+                                <td>{{ item.qty }}</td>
+                                <td style="text-align: right;" class="text-secondary fw-semibold">{{ item.corner }} bh</td>
+                                <td style="text-align: right;" class="text-secondary fw-semibold">{{ item.murbaut }} set</td>
+                                <td style="text-align: right;" class="text-success fw-semibold">{{ item.foam_tape }} roll</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">
+                                    Tidak ada data item TFD pada permintaan ini.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Aggregated Summary Section -->
+            <div class="row justify-content-end">
+                <div class="col-12 col-md-6 col-lg-5">
+                    <div class="summary-card shadow-sm">
+                        <div class="summary-title"><i class="bi bi-file-earmark-bar-graph-fill me-2 text-primary"></i>Total Kebutuhan Material</div>
+                        <table class="table table-sm table-borderless mb-0">
+                            <tbody>
+                                <tr class="border-bottom border-white">
+                                    <td class="fw-semibold text-secondary py-2">Corner (Pojok)</td>
+                                    <td class="fw-bold text-dark text-end py-2" style="font-size: 1.15rem;">{{ request_data.corner }} <span class="small fw-normal text-muted">buah</span></td>
+                                </tr>
+                                <tr class="border-bottom border-white">
+                                    <td class="fw-semibold text-secondary py-2">Mur Baut</td>
+                                    <td class="fw-bold text-dark text-end py-2" style="font-size: 1.15rem;">{{ request_data.mur_baut }} <span class="small fw-normal text-muted">set</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-semibold text-secondary py-2">Foam Tape (Tipe)</td>
+                                    <td class="fw-bold text-success text-end py-2" style="font-size: 1.2rem;">{{ request_data.foam_tape }} <span class="small fw-semibold text-success">roll</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Signature block (Print only) -->
+            <div class="signature-section justify-content-between text-center">
+                <div class="col-4">
+                    <p class="mb-5 small text-muted">Dibuat Oleh,</p>
+                    <div style="border-bottom: 1px solid #ccc; width: 150px; margin: 0 auto;"></div>
+                    <p class="mt-1 small text-dark fw-medium">Admin Gudang</p>
+                </div>
+                <div class="col-4">
+                    <p class="mb-5 small text-muted">Disetujui Oleh,</p>
+                    <div style="border-bottom: 1px solid #ccc; width: 150px; margin: 0 auto;"></div>
+                    <p class="mt-1 small text-dark fw-medium">Project Manager</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="text-center mt-4 text-muted small no-print">
+            Workshop App &copy; 2026. All rights reserved.
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
