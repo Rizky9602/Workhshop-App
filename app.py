@@ -1417,12 +1417,22 @@ def upload_bpd():
         full_text = " ".join(tok for sent in sentences for tok in sent).upper()
 
         if "BPD" not in full_text:
+            if os.path.exists(filepath):
+                try:
+                    os.remove(filepath)
+                except Exception as e_del:
+                    print(f"Error deleting invalid BPD file: {e_del}")
             return jsonify({
                 "success": False,
                 "error": "File yang diupload bukan merupakan dokumen BPD."
             }), 422
 
         if not sentences:
+            if os.path.exists(filepath):
+                try:
+                    os.remove(filepath)
+                except Exception as e_del:
+                    print(f"Error deleting empty/scanned PDF file: {e_del}")
             return jsonify({
                 "success": False,
                 "error": "Tidak ada teks yang dapat dibaca dari PDF (kemungkinan hasil scan gambar)."
@@ -1439,8 +1449,18 @@ def upload_bpd():
         })
 
     except FileNotFoundError as e:
+        if os.path.exists(filepath):
+            try:
+                os.remove(filepath)
+            except Exception as e_del:
+                print(f"Error deleting file on FileNotFoundError: {e_del}")
         return jsonify({"success": False, "error": str(e)}), 500
     except Exception as e:
+        if os.path.exists(filepath):
+            try:
+                os.remove(filepath)
+            except Exception as e_del:
+                print(f"Error deleting file on Exception: {e_del}")
         return jsonify({"success": False, "error": f"Gagal memproses file: {e}"}), 500
 
 if __name__ == "__main__":
