@@ -1,4 +1,3 @@
-// JavaScript for Sidebar Toggle
 document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebarToggle');
@@ -34,11 +33,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-
-// ============================================================
-// NAVIGATION: highlight the sidebar item matching the page
-// that is actually loaded.
-// ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.sidebar .nav-link[href]');
     if (!navLinks.length) return;
@@ -55,16 +49,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// ============================================================
-// DASHBOARD: stat cards + trend chart, populated from real data
-// returned by /api/dashboard-stats (no more hardcoded dummy values).
-// ============================================================
 document.addEventListener('DOMContentLoaded', function() {
     const canvas = document.getElementById('productionTrendChart');
     const statTotalBpd = document.getElementById('statTotalBpd');
     const statActiveProjects = document.getElementById('statActiveProjects');
 
-    // Only run on pages that actually have the dashboard elements.
     if (!canvas && !statTotalBpd && !statActiveProjects) return;
 
     fetch('/api/dashboard-stats')

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Bulanan Pemakaian Material</title>
+    <title>Laporan Bulanan Kebutuhan Material Support</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -97,8 +97,8 @@
         <div class="report-card">
             <div class="report-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
                 <div>
-                    <h3 class="fw-bold mb-1 text-primary"><i class="bi bi-file-earmark-bar-graph-fill me-2"></i>Laporan Kebutuhan Material</h3>
-                    <p class="text-muted mb-0 small">Ringkasan total pemakaian BJLS per ketebalan.</p>
+                    <h3 class="fw-bold mb-1 text-primary"><i class="bi bi-file-earmark-bar-graph-fill me-2"></i>Laporan Kebutuhan Material Support</h3>
+                    <p class="text-muted mb-0 small">Ringkasan total pemakaian Corner, Mur Baut, dan Foam Tape.</p>
                 </div>
                 <div class="text-sm-end text-muted small">
                     <div>Periode:</div>
@@ -113,7 +113,7 @@
             </div>
 
             {% if report_by_project %}
-                {% for project, summaries in report_by_project.items() %}
+                {% for project, summary in report_by_project.items() %}
                 <div class="project-section">
                     <div class="project-title">
                         <i class="bi bi-building text-primary"></i> Proyek: {{ project }}
@@ -122,17 +122,23 @@
                         <table class="table table-custom mb-0">
                             <thead>
                                 <tr>
-                                    <th>Ketebalan BJLS</th>
-                                    <th style="width: 250px; text-align: right;">Total Kebutuhan Material</th>
+                                    <th>Nama Komponen</th>
+                                    <th style="width: 250px; text-align: right;">Total Kebutuhan</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for summary in summaries %}
                                 <tr>
-                                    <td class="fw-medium text-secondary">BJLS {{ summary.bjls }}</td>
-                                    <td class="fw-bold text-dark text-end">{{ "{:,.0f}".format(summary.total_material) if summary.total_material else "0" }} M'</td>
+                                    <td class="fw-medium text-secondary">Corner</td>
+                                    <td class="fw-bold text-dark text-end">{{ "{:,.0f}".format(summary.corner) }} buah</td>
                                 </tr>
-                                {% endfor %}
+                                <tr>
+                                    <td class="fw-medium text-secondary">Mur Baut</td>
+                                    <td class="fw-bold text-dark text-end">{{ "{:,.0f}".format(summary.mur_baut) }} set</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium text-secondary">Foam Tape</td>
+                                    <td class="fw-bold text-success text-end">{{ "{:,.0f}".format(summary.foam_tape) }} roll</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -141,7 +147,7 @@
             {% else %}
                 <div class="text-center text-muted py-5">
                     <i class="bi bi-file-earmark-excel fs-1 mb-2 d-block text-secondary"></i>
-                    Tidak ada data pemakaian material yang ditemukan untuk filter yang dipilih.
+                    Tidak ada data pemakaian material support yang ditemukan untuk filter yang dipilih.
                 </div>
             {% endif %}
 

@@ -1,7 +1,3 @@
-// ============================================================
-// SCAN & VERIFY: upload PDF -> tokenisasi (pdfplumber) -> CRF
-// -> isi tabel hasil ekstraksi (tidak ada data dummy).
-// ============================================================
 document.addEventListener("DOMContentLoaded", function () {
   const dropZone = document.getElementById("drop_zone");
   const uploadLink = document.getElementById("upload_link");
@@ -16,8 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const tableBody = document.getElementById("bpdTableBody");
   const emptyRow = document.getElementById("emptyRow");
   const viewOriginalBtn = document.getElementById("viewOriginalBtn");
+  let currentObjectUrl = null;
 
-  // Only run this block on the Scan & Verify page.
   if (!dropZone || !fileInput || !tableBody) return;
 
   const fieldProjectName = document.getElementById("field_project_name");
@@ -62,8 +58,6 @@ document.addEventListener("DOMContentLoaded", function () {
     cellNo.textContent = index + 1;
     tr.appendChild(cellNo);
 
-    // Maps 1:1 to build_result() in app.py, which in turn is derived
-    // straight from the CRF labels: ITEM, JOIN, DIM(W/H_L), THICK, QTY.
     const fieldsConfig = [
       { key: "nama_ducting", type: "text" },
       { key: "join_type", type: "text" },
@@ -162,6 +156,10 @@ document.addEventListener("DOMContentLoaded", function () {
       viewOriginalBtn.href = "#";
       viewOriginalBtn.classList.add("d-none");
     }
+    if (currentObjectUrl) {
+      URL.revokeObjectURL(currentObjectUrl);
+      currentObjectUrl = null;
+    }
     const saveBtn = document.getElementById("saveBtn");
     if (saveBtn) {
       saveBtn.disabled = true;
@@ -204,8 +202,12 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
         statusBadge.classList.remove("d-none");
-        if (viewOriginalBtn && body.filename) {
-          viewOriginalBtn.href = `/uploads/${body.filename}`;
+        if (viewOriginalBtn) {
+          if (currentObjectUrl) {
+            URL.revokeObjectURL(currentObjectUrl);
+          }
+          currentObjectUrl = URL.createObjectURL(file);
+          viewOriginalBtn.href = currentObjectUrl;
           viewOriginalBtn.classList.remove("d-none");
         }
         populateResults(body.data);
@@ -336,6 +338,5 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   });
 
-  // Initialize empty state on page load
   showEmptyState();
 });

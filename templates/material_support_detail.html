@@ -77,7 +77,8 @@
 
         .signature-section {
             margin-top: 50px;
-            display: none;
+            display: flex;
+            flex-direction: column;
         }
 
         @media print {
@@ -110,7 +111,6 @@
 <body>
 
     <div class="detail-container">
-        <!-- Back and Print Buttons -->
         <div class="d-flex justify-content-between align-items-center mb-4 no-print">
             <button onclick="window.close()" class="btn btn-outline-secondary px-3 py-2 fw-medium">
                 <i class="bi bi-x-lg me-1"></i> Tutup Tab
@@ -120,9 +120,7 @@
             </button>
         </div>
 
-        <!-- Material Support Report -->
         <div class="report-card">
-            <!-- Header Section -->
             <div class="report-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
                 <div>
                     <h3 class="fw-bold mb-1 text-primary"><i class="bi bi-box-fill me-2"></i>Bukti Perhitungan Material Support</h3>
@@ -133,7 +131,6 @@
                 </div>
             </div>
 
-            <!-- Metadata Box -->
             <div class="meta-box">
                 <div class="row g-3">
                     <div class="col-6 col-md-3">
@@ -155,21 +152,16 @@
                 </div>
             </div>
 
-            <!-- Items Table Section -->
-            <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-list-task me-2"></i>Rincian Ducting TFD</h5>
+            <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-list-task me-2"></i>Rincian Kebutuhan per Nomor BPD</h5>
             <div class="table-responsive mb-4">
                 <table class="table table-custom mb-0">
                     <thead>
                         <tr>
-                            <th style="width: 50px;">No</th>
-                            <th style="width: 120px;">BPD NO</th>
-                            <th>Nama Ducting</th>
-                            <th>Lantai / Area</th>
-                            <th style="width: 150px;">Ukuran TFD (mm)</th>
-                            <th style="width: 70px;">Qty</th>
-                            <th style="width: 100px; text-align: right;">Corner</th>
-                            <th style="width: 100px; text-align: right;">Mur Baut</th>
-                            <th style="width: 100px; text-align: right;">Foam Tape</th>
+                            <th style="width: 60px;">No</th>
+                            <th>BPD NO</th>
+                            <th style="width: 150px; text-align: right;">Corner</th>
+                            <th style="width: 150px; text-align: right;">Mur Baut</th>
+                            <th style="width: 150px; text-align: right;">Foam Tape</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -178,10 +170,6 @@
                             <tr>
                                 <td>{{ loop.index }}</td>
                                 <td class="fw-semibold text-dark">{{ item.bpd_no }}</td>
-                                <td class="fw-medium">{{ item.nama_ducting }}</td>
-                                <td>{{ item.lantai }} / {{ item.unit_area }}</td>
-                                <td class="text-primary fw-medium">{{ item.formatted_tfd_size }}</td>
-                                <td>{{ item.qty }}</td>
                                 <td style="text-align: right;" class="text-secondary fw-semibold">{{ item.corner }} bh</td>
                                 <td style="text-align: right;" class="text-secondary fw-semibold">{{ item.murbaut }} set</td>
                                 <td style="text-align: right;" class="text-success fw-semibold">{{ item.foam_tape }} roll</td>
@@ -189,58 +177,45 @@
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="9" class="text-center text-muted py-4">
+                                <td colspan="5" class="text-center text-muted py-4">
                                     Tidak ada data item TFD pada permintaan ini.
                                 </td>
                             </tr>
                         {% endif %}
                     </tbody>
+                    {% if items %}
+                    <tfoot>
+                        <tr class="fw-bold table-light border-top border-2">
+                            <td colspan="2" class="text-start py-3 ps-3 text-uppercase text-secondary" style="font-size: 0.85rem; letter-spacing: 0.5px;">Total Kebutuhan Material</td>
+                            <td style="text-align: right;" class="text-dark py-3">{{ total_corner_display }} bh</td>
+                            <td style="text-align: right;" class="text-dark py-3">{{ total_murbaut_display }} set</td>
+                            <td style="text-align: right;" class="text-success py-3">{{ total_foam_tape_display }} roll</td>
+                        </tr>
+                    </tfoot>
+                    {% endif %}
                 </table>
             </div>
 
-            <!-- Aggregated Summary Section -->
-            <div class="row justify-content-end">
-                <div class="col-12 col-md-6 col-lg-5">
-                    <div class="summary-card shadow-sm">
-                        <div class="summary-title"><i class="bi bi-file-earmark-bar-graph-fill me-2 text-primary"></i>Total Kebutuhan Material</div>
-                        <table class="table table-sm table-borderless mb-0">
-                            <tbody>
-                                <tr class="border-bottom border-white">
-                                    <td class="fw-semibold text-secondary py-2">Corner (Pojok)</td>
-                                    <td class="fw-bold text-dark text-end py-2" style="font-size: 1.15rem;">{{ request_data.corner }} <span class="small fw-normal text-muted">buah</span></td>
-                                </tr>
-                                <tr class="border-bottom border-white">
-                                    <td class="fw-semibold text-secondary py-2">Mur Baut</td>
-                                    <td class="fw-bold text-dark text-end py-2" style="font-size: 1.15rem;">{{ request_data.mur_baut }} <span class="small fw-normal text-muted">set</span></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-secondary py-2">Foam Tape (Tipe)</td>
-                                    <td class="fw-bold text-success text-end py-2" style="font-size: 1.2rem;">{{ request_data.foam_tape }} <span class="small fw-semibold text-success">roll</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+            <div class="signature-section">
+                <div class="text-end mb-3" style="padding-right: 8%;">
+                    <p class="mb-0 text-dark small">{{ today_formatted }}</p>
+                </div>
+                <div class="d-flex justify-content-between text-center">
+                    <div class="col-4">
+                        <p class="mb-5 small text-muted">Diperiksa Oleh,</p>
+                        <p class="mt-4 text-dark fw-medium">( &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; )</p>
                     </div>
-                </div>
-            </div>
-
-            <!-- Signature block (Print only) -->
-            <div class="signature-section justify-content-between text-center">
-                <div class="col-4">
-                    <p class="mb-5 small text-muted">Dibuat Oleh,</p>
-                    <div style="border-bottom: 1px solid #ccc; width: 150px; margin: 0 auto;"></div>
-                    <p class="mt-1 small text-dark fw-medium">Admin Gudang</p>
-                </div>
-                <div class="col-4">
-                    <p class="mb-5 small text-muted">Disetujui Oleh,</p>
-                    <div style="border-bottom: 1px solid #ccc; width: 150px; margin: 0 auto;"></div>
-                    <p class="mt-1 small text-dark fw-medium">Project Manager</p>
+                    <div class="col-4">
+                        <p class="mb-5 small text-muted">Dibuat Oleh,</p>
+                        <p class="mt-4 text-dark fw-medium">( &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; )</p>
+                    </div>
                 </div>
             </div>
 
         </div>
 
         <div class="text-center mt-4 text-muted small no-print">
-            Workshop App &copy; 2026. All rights reserved.
+            Sistem Ekstraksi Informasi Dokumen Fabrikasi Ducting Berbasis CRF &copy; 2026. All rights reserved.
         </div>
     </div>
 
